@@ -2,12 +2,15 @@ const express = require('express')
 const fs = require('fs/promises')
 const axios = require('axios')
 const cors = require('cors');
+const datas  =require("../data/pokemon-data.json")
 
 const app = express()
 
 let path = "./data/pokemon-data.json"
 
 app.use(cors())
+
+
 
 app.get('/', function (req, res) {
     let content = `Hello World! <br><br>
