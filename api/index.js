@@ -97,7 +97,7 @@ app.get('/random/lignee', function(req, res) {
 
 app.get('/random/tier/:tier', async function (req, res) {
 
-    const getTier = await axios.get('http://localhost:3001/liste/tier')
+    const getTier = await axios.get('https://pokemon-database-ten.vercel.app/liste/tier')
     if(getTier.data.includes(req.params.tier)){
         fs.readFile(path)
             .then((data) => {
@@ -151,7 +151,7 @@ app.get('/random/stage/:evo', function (req, res) {
 
 app.get('/random/:types', async function(req, res) {
 
-    const getType = await axios.get('http://localhost:3001/liste/type')
+    const getType = await axios.get('https://pokemon-database-ten.vercel.app/liste/type')
 
     if(getType.data.includes(req.params.types)){
 
@@ -187,7 +187,7 @@ app.get('/random/:types', async function(req, res) {
 })
 
 app.get('/random/:type/:types', async function(req, res){
-    const getTypes = await axios.get('http://localhost:3001/liste/type')
+    const getTypes = await axios.get('https://pokemon-database-ten.vercel.app/liste/type')
     if(getTypes.data.includes(req.params.type) && getTypes.data.includes(req.params.types)){
         fs.readFile(path)
             .then((data) => {
