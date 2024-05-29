@@ -90,13 +90,15 @@ app.get('/random/lignee', async function(req, res) {
 
 app.get('/random/tier/:tier', async function (req, res) {
 
-    let arrayTier = []
-    const allPokemon = await getAllPokemon()
-    allPokemon.forEach(element => {
-        if (element.Tier === req.params.tier){
-            arrayTier.push(element)
-        }
-    });
+    const getTier = await axios.get('http://localhost:3001/liste/tier')
+    if(getTier.data.includes(req.params.tier)){
+        fs.readFile(path)
+            .then((data) => {
+
+                let fileData = JSON.parse(data)
+
+                fileData = fileData.filter(pokemon => pokemon.Tier == req.params.tier);
+                
 
     if(arrayTier.length != 0){
         const randomNumber = Math.floor(Math.random() * arrayTier.length)
@@ -134,11 +136,20 @@ app.get('/random/stage/:evo', async function (req, res) {
 
 app.get('/random/:types', async function(req, res) {
 
-    const pokemonType = await getOneTypes(req.params.types)
+    const getType = await axios.get('http://localhost:3001/liste/type')
 
-    let allPokemon = await getAllPokemon()
-    console.log({allPokemon})
-    allPokemon = allPokemon.filter(pokemon => pokemon.Types.includes(pokemonType._id))
+    if(getType.data.includes(req.params.types)){
+
+        fs.readFile(path)
+            .then((data) => {
+                let fileData = JSON.parse(data)
+
+                fileData.forEach(element => {
+                    element.Types = element.Types.replace('[', '').replace(']', '').replaceAll("'", '')
+                    element.Types = element.Types.split(', ')
+                });
+                
+                fileData = fileData.filter(pokemon => pokemon.Types.includes(req.params.types))
 
     if(allPokemon.length !== 0){
         const randomNumber = Math.floor(Math.random() * allPokemon.length)
@@ -155,20 +166,37 @@ app.get('/random/:types', async function(req, res) {
 })
 
 app.get('/random/:type/:types', async function(req, res){
+    const getTypes = await axios.get('http://localhost:3001/liste/type')
+    if(getTypes.data.includes(req.params.type) && getTypes.data.includes(req.params.types)){
+        fs.readFile(path)
+            .then((data) => {
+                let fileData = JSON.parse(data)
 
-    const pokemonType1 = await getOneTypes(req.params.type)
-    const pokemonType2 = await getOneTypes(req.params.types)
+                fileData.forEach(element => {
+                    element.Types = element.Types.replace('[', '').replace(']', '').replaceAll("'", '')
+                    element.Types = element.Types.split(', ')
+                });
+                
+                fileData = fileData.filter(pokemon => pokemon.Types.includes(req.params.types) && pokemon.Types.includes(req.params.type))
+                console.log(fileData)
 
-    let allPokemon = await getAllPokemon()
+                if(fileData.length == 0){
+                    res.redirect('/error?e=Pas%20de%20pokemon')
+                }
 
-    allPokemon = allPokemon.filter(type => type.Types.includes(pokemonType1._id))
-    allPokemon = allPokemon.filter(types => types.Types.includes(pokemonType2._id))
+                let randomInt = Math.floor(Math.random() * fileData.length)
 
-    if(allPokemon.length !== 0){
-        const randomNumber = Math.floor(Math.random() * allPokemon.length)
-        res.send(allPokemon[randomNumber])
-    } else{
-        res.redirect('/error?e=Types%20inconnue')
+                let randomPokemon = fileData[randomInt]
+
+                res.send(randomPokemon)
+
+            })
+            .catch((error) => {
+                console.log("ERREUR: ", error)
+                return res.status(500).send('Error server')
+            });
+    } else {
+        res.redirect("/error?e=Un%20type%20n'existe%20pas")
     }
 })
 
