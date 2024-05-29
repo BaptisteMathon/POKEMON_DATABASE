@@ -88,28 +88,33 @@ app.get('/random/lignee', async function(req, res) {
     res.send(ArrayPOK)
 })
 
-app.get('/random/tier/:tier', async function (req, res) {
+// app.get('/random/tier/:tier', async function (req, res) {
 
-    const getTier = await axios.get('http://localhost:3001/liste/tier')
-    if(getTier.data.includes(req.params.tier)){
-        fs.readFile(path)
-            .then((data) => {
+//     let arrayTier = []
+//     const allPokemon = await getAllPokemon()
+//     allPokemon.forEach
+//     let arrayTier = []
+//     const allPokemon = await getAllPokemon()
+//     allPokemon.forEach(element => {
+//         if (element.Tier === req.params.tier){
+//             arrayTier.push(element)
+//         }
+//     });
+//     const getTier = await axios.get('https://pokemon-database-ten.vercel.app/liste/tier')
+//     if(getTier.data.includes(req.params.tier)){
+//         fs.readFile(path)
+//             .then((data) => {
 
-                let fileData = JSON.parse(data)
-
-                fileData = fileData.filter(pokemon => pokemon.Tier == req.params.tier);
-                
-
-    if(arrayTier.length != 0){
-        const randomNumber = Math.floor(Math.random() * arrayTier.length)
+//     if(arrayTier.length != 0){
+//         const randomNumber = Math.floor(Math.random() * arrayTier.length)
     
-        const randomTierPokemon = arrayTier[randomNumber]
+//         const randomTierPokemon = arrayTier[randomNumber]
     
-        res.send(randomTierPokemon)
-    } else {
-        res.redirect("/error?e=Le%20tier%20n'existe%20pas")
-    }
-})
+//         res.send(randomTierPokemon)
+//     } else {
+//         res.redirect("/error?e=Le%20tier%20n'existe%20pas")
+//     }
+// })
 
 app.get('/random/stage/:evo', async function (req, res) {
     let arrrayPokemonSansEvolution = []
@@ -136,20 +141,11 @@ app.get('/random/stage/:evo', async function (req, res) {
 
 app.get('/random/:types', async function(req, res) {
 
-    const getType = await axios.get('http://localhost:3001/liste/type')
+    const pokemonType = await getOneTypes(req.params.types)
 
-    if(getType.data.includes(req.params.types)){
-
-        fs.readFile(path)
-            .then((data) => {
-                let fileData = JSON.parse(data)
-
-                fileData.forEach(element => {
-                    element.Types = element.Types.replace('[', '').replace(']', '').replaceAll("'", '')
-                    element.Types = element.Types.split(', ')
-                });
-                
-                fileData = fileData.filter(pokemon => pokemon.Types.includes(req.params.types))
+    let allPokemon = await getAllPokemon()
+    console.log({allPokemon})
+    allPokemon = allPokemon.filter(pokemon => pokemon.Types.includes(pokemonType._id))
 
     if(allPokemon.length !== 0){
         const randomNumber = Math.floor(Math.random() * allPokemon.length)
@@ -166,37 +162,20 @@ app.get('/random/:types', async function(req, res) {
 })
 
 app.get('/random/:type/:types', async function(req, res){
-    const getTypes = await axios.get('http://localhost:3001/liste/type')
-    if(getTypes.data.includes(req.params.type) && getTypes.data.includes(req.params.types)){
-        fs.readFile(path)
-            .then((data) => {
-                let fileData = JSON.parse(data)
 
-                fileData.forEach(element => {
-                    element.Types = element.Types.replace('[', '').replace(']', '').replaceAll("'", '')
-                    element.Types = element.Types.split(', ')
-                });
-                
-                fileData = fileData.filter(pokemon => pokemon.Types.includes(req.params.types) && pokemon.Types.includes(req.params.type))
-                console.log(fileData)
+    const pokemonType1 = await getOneTypes(req.params.type)
+    const pokemonType2 = await getOneTypes(req.params.types)
 
-                if(fileData.length == 0){
-                    res.redirect('/error?e=Pas%20de%20pokemon')
-                }
+    let allPokemon = await getAllPokemon()
 
-                let randomInt = Math.floor(Math.random() * fileData.length)
+    allPokemon = allPokemon.filter(type => type.Types.includes(pokemonType1._id))
+    allPokemon = allPokemon.filter(types => types.Types.includes(pokemonType2._id))
 
-                let randomPokemon = fileData[randomInt]
-
-                res.send(randomPokemon)
-
-            })
-            .catch((error) => {
-                console.log("ERREUR: ", error)
-                return res.status(500).send('Error server')
-            });
-    } else {
-        res.redirect("/error?e=Un%20type%20n'existe%20pas")
+    if(allPokemon.length !== 0){
+        const randomNumber = Math.floor(Math.random() * allPokemon.length)
+        res.send(allPokemon[randomNumber])
+    } else{
+        res.redirect('/error?e=Types%20inconnue')
     }
 })
 
