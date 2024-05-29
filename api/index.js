@@ -5,12 +5,25 @@ const cors = require('cors');
 const datas  =require("../data/pokemon-data.json")
 
 const app = express()
+const database = require("../database")
+
+const { getAllPokemon, getOnePokemon } = require("../controller/pokemon/get");
+const {getOneTypes, getAllTypes, getManyTypes} = require("../controller/types/get")
+const {getAllAttaque, getManyAttaque} = require("../controller/attaque/get")
+const {getAllTalent} = require("../controller/talent/get")
+const {getAllEkip} = require("../controller/ekip/get")
+
+const {postEkip} = require("../controller/ekip/post")
+
+const {deleteEkip} = require("../controller/ekip/delete")
+
+
 
 let path = "./data/pokemon-data.json"
 
 app.use(cors())
 
-
+database()
 
 app.get('/', function (req, res) {
     let content = `Hello World! <br><br>
@@ -28,243 +41,182 @@ app.get('/', function (req, res) {
     res.send(content)
 })
 
-app.get('/all', function(req, res){
-    fs.readFile(path)
-        .then((data) =>{
-            let fileData = JSON.parse(data)
+app.get('/all', async function(req, res) {
+    try {
+      const allPokemon = await getAllPokemon();
 
-            console.log(fileData)
+      for(let i = 0; i < allPokemon.length; i++){
+          allPokemon[i] = allPokemon[i][' Name']
+      }
 
-            res.send(fileData)
-        })
-        .catch((error) => {
-            console.log("ERREUR: ", error)
-            return res.status(500).send('Error server')
-        })
+      res.send(allPokemon);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des Pokemons :", error);
+      res.status(500).send("Erreur de récupération des Pokemons");
+    }
+  });
+
+app.get('/random', async function (req, res) {
+
+    try {
+        const AllPOK = await getAllPokemon();
+        const randomNumber = Math.floor(Math.random() * AllPOK.length)
+        const randomPOK = AllPOK[randomNumber]
+        res.send(randomPOK)
+    } catch(error){
+        console.error("Erreur lors de la récupération des pokémons : ", error)
+        res.status(500).send("Erreur de récupératuoin des pokémons")
+    }
 })
 
-app.get('/random', function (req, res) {
-  fs.readFile(path)
-    .then((data) => {
-      let fileData = JSON.parse(data)
+app.get('/random/lignee', async function(req, res) {
 
-      let randomInt = Math.floor(Math.random() * fileData.length)
+    let ArrayPOK = []
 
-      let randomPokemon = fileData[randomInt]
-
-      res.send(randomPokemon)
-
-    })
-    .catch((error) => {
-        console.log("ERREUR: ", error)
-        return res.status(500).send('Error server')
-    });
-})
-
-app.get('/random/lignee', function(req, res) {
-    fs.readFile(path)
-        .then((data) => {
-        let fileData = JSON.parse(data)
-        let copyFileData = fileData
-
-        fileData.forEach(element => {
-            element['Next Evolution(s)'] = element['Next Evolution(s)'].replace('[', '').replace(']', '').replaceAll("'", '')
-            element['Next Evolution(s)'] = element['Next Evolution(s)'].split(', ')
-        });
-
-        let randomInt = Math.floor(Math.random() * fileData.length)
-
-        let randomPokemon = fileData[randomInt]
-        let newRandomPolemon = []
-
-        if(randomPokemon['Next Evolution(s)'][0].length != 0){
-            newRandomPolemon.push(randomPokemon)
-            randomPokemon['Next Evolution(s)'].forEach(element => {
-                newRandomPolemon.push(copyFileData.filter(pokemon => pokemon[' Name'] == element))
-            });
-        } else {
-            newRandomPolemon = randomPokemon
+    const PokemonInfo = await getAllPokemon()
+    const randomNumber = Math.floor(Math.random() * PokemonInfo.length)
+    const randomPokemon = PokemonInfo[randomNumber]
+    ArrayPOK.push(randomPokemon)
+    if(randomPokemon['Next Evolution(s)'].length !== 0){
+        const Evolution = await getOnePokemon(randomPokemon['Next Evolution(s)'][0])
+        ArrayPOK.push(Evolution)
+        if(Evolution['Next Evolution(s)'].length !== 0){
+            const Evolution2 = await getOnePokemon(Evolution['Next Evolution(s)'][0])
+            ArrayPOK.push(Evolution2)
         }
-
-        res.send(newRandomPolemon)
-
-        })
-        .catch((error) => {
-            console.log("ERREUR: ", error)
-            return res.status(500).send('Error server')
-        });
+    } 
+    res.send(ArrayPOK)
 })
 
 app.get('/random/tier/:tier', async function (req, res) {
 
-    const getTier = await axios.get('http://localhost:3001/liste/tier')
-    if(getTier.data.includes(req.params.tier)){
-        fs.readFile(path)
-            .then((data) => {
+    let arrayTier = []
+    const allPokemon = await getAllPokemon()
+    allPokemon.forEach(element => {
+        if (element.Tier === req.params.tier){
+            arrayTier.push(element)
+        }
+    });
 
-                let fileData = JSON.parse(data)
-
-                fileData = fileData.filter(pokemon => pokemon.Tier == req.params.tier);
-                
-
-                let randomInt = Math.floor(Math.random() * fileData.length)
-
-                let randomPokemon = fileData[randomInt]
-
-                res.send(randomPokemon)
-
-            })
-            .catch((error) => {
-                console.log("ERREUR: ", error)
-                return res.status(500).send('Error server')
-            });
+    if(arrayTier.length != 0){
+        const randomNumber = Math.floor(Math.random() * arrayTier.length)
+    
+        const randomTierPokemon = arrayTier[randomNumber]
+    
+        res.send(randomTierPokemon)
     } else {
         res.redirect("/error?e=Le%20tier%20n'existe%20pas")
     }
 })
 
-app.get('/random/stage/:evo', function (req, res) {
-    fs.readFile(path)
-    .then((data) => {
-      let fileData = JSON.parse(data)
-
-      if (req.params.evo == 1){
-        fileData = fileData.filter(pokemon => pokemon['Next Evolution(s)'] != "[]")
-      } else if(req.params.evo == 2) {
-        fileData = fileData.filter(pokemon => pokemon['Next Evolution(s)'] == "[]")
-      } else {
-        res.redirect('/error?e=mauvais stage')
-      }
-
-      let randomInt = Math.floor(Math.random() * fileData.length)
-
-      let randomPokemon = fileData[randomInt]
-
-      res.send(randomPokemon)
-
+app.get('/random/stage/:evo', async function (req, res) {
+    let arrrayPokemonSansEvolution = []
+    let arrrayPokemonAvecEvolution = []
+    const allPokemon = await getAllPokemon()
+    allPokemon.forEach(element => {
+        if(element['Next Evolution(s)'].length === 0){
+            arrrayPokemonSansEvolution.push(element)
+        } else {
+            arrrayPokemonAvecEvolution.push(element)
+        }
     })
-    .catch((error) => {
-        console.log("ERREUR: ", error)
-        return res.status(500).send('Error server')
-    });
+
+    if(req.params.evo == '1'){
+        const randomNumber = Math.floor(Math.random() * arrrayPokemonAvecEvolution.length)
+        res.send(arrrayPokemonAvecEvolution[randomNumber])
+    } else if (req.params.evo == '2'){
+        const randomNumber = Math.floor(Math.random() * arrrayPokemonSansEvolution.length)
+        res.send(arrrayPokemonSansEvolution[randomNumber])
+    } else {
+        res.redirect("/error?e=Stage%20inconnue")
+    }
 })
 
 app.get('/random/:types', async function(req, res) {
 
-    const getType = await axios.get('http://localhost:3001/liste/type')
+    const pokemonType = await getOneTypes(req.params.types)
 
-    if(getType.data.includes(req.params.types)){
+    let allPokemon = await getAllPokemon()
+    console.log({allPokemon})
+    allPokemon = allPokemon.filter(pokemon => pokemon.Types.includes(pokemonType._id))
 
-        fs.readFile(path)
-            .then((data) => {
-                let fileData = JSON.parse(data)
+    if(allPokemon.length !== 0){
+        const randomNumber = Math.floor(Math.random() * allPokemon.length)
+        const RealTypes  = await getManyTypes(allPokemon[randomNumber]["Types"]);
+        const RealAttaque = await getManyAttaque(allPokemon[randomNumber]["Moves"])
 
-                fileData.forEach(element => {
-                    element.Types = element.Types.replace('[', '').replace(']', '').replaceAll("'", '')
-                    element.Types = element.Types.split(', ')
-                });
-                
-                fileData = fileData.filter(pokemon => pokemon.Types.includes(req.params.types))
-
-                if(fileData.length == 0){
-                    res.redirect('/error?e=Pas%20de%20pokemon')
-                }
-
-                let randomInt = Math.floor(Math.random() * fileData.length)
-
-                let randomPokemon = fileData[randomInt]
-
-                res.send(randomPokemon)
-
-            })
-            .catch((error) => {
-                console.log("ERREUR: ", error)
-                return res.status(500).send('Error server')
-            });
+        allPokemon[randomNumber]["Types"] = RealTypes
+        allPokemon[randomNumber]["Moves"] = RealAttaque
+        res.send(allPokemon[randomNumber])
     } else {
-        res.redirect("/error?e=Le%20type%20n'existe%20pas")
+        res.redirect('/error?e=Type%20inconnue')
     }
+
 })
 
 app.get('/random/:type/:types', async function(req, res){
-    const getTypes = await axios.get('http://localhost:3001/liste/type')
-    if(getTypes.data.includes(req.params.type) && getTypes.data.includes(req.params.types)){
-        fs.readFile(path)
-            .then((data) => {
-                let fileData = JSON.parse(data)
 
-                fileData.forEach(element => {
-                    element.Types = element.Types.replace('[', '').replace(']', '').replaceAll("'", '')
-                    element.Types = element.Types.split(', ')
-                });
-                
-                fileData = fileData.filter(pokemon => pokemon.Types.includes(req.params.types) && pokemon.Types.includes(req.params.type))
-                console.log(fileData)
+    const pokemonType1 = await getOneTypes(req.params.type)
+    const pokemonType2 = await getOneTypes(req.params.types)
 
-                if(fileData.length == 0){
-                    res.redirect('/error?e=Pas%20de%20pokemon')
-                }
+    let allPokemon = await getAllPokemon()
 
-                let randomInt = Math.floor(Math.random() * fileData.length)
+    allPokemon = allPokemon.filter(type => type.Types.includes(pokemonType1._id))
+    allPokemon = allPokemon.filter(types => types.Types.includes(pokemonType2._id))
 
-                let randomPokemon = fileData[randomInt]
-
-                res.send(randomPokemon)
-
-            })
-            .catch((error) => {
-                console.log("ERREUR: ", error)
-                return res.status(500).send('Error server')
-            });
-    } else {
-        res.redirect("/error?e=Un%20type%20n'existe%20pas")
+    if(allPokemon.length !== 0){
+        const randomNumber = Math.floor(Math.random() * allPokemon.length)
+        res.send(allPokemon[randomNumber])
+    } else{
+        res.redirect('/error?e=Types%20inconnue')
     }
 })
 
-app.get('/liste/tier', function(req, res) {
-    fs.readFile(path)
-    .then((data) => {
-        let allTier = []
-        let fileData = JSON.parse(data)
+app.get('/liste/tier', async function(req, res) {
 
-        fileData.forEach(element => {
-            if (!allTier.includes(element.Tier)){
-                allTier.push(element.Tier);
-            }
-        });
-
-        res.send(allTier)
-
-    })
-    .catch((error) => {
-        console.log("ERREUR: ", error)
-        return res.status(500).send('Error server')
+    let allTier = []
+    const allPokemon = await getAllPokemon()
+    allPokemon.forEach(element => {
+        if(!allTier.includes(element.Tier) && element.Tier != null){
+            allTier.push(element.Tier)
+        }
     });
+    res.send(allTier)
+
 })
 
-app.get('/liste/type', function(req, res) {
-    fs.readFile(path)
-    .then((data) => {
-        let allTypes = []
-        let fileData = JSON.parse(data)
-
-        fileData.forEach(element => {
-            element.Types = element.Types.replace('[', '').replace(']', '').replaceAll("'", '')
-            element.Types = element.Types.split(', ')
-            element.Types.forEach(elements => {
-                if(!allTypes.includes(elements)){
-                    allTypes.push(elements);
-                }
-            });
-        });
-
-        res.send(allTypes)
-
-    })
-    .catch((error) => {
-        console.log("ERREUR: ", error)
-        return res.status(500).send('Error server')
+app.get('/liste/type', async function(req, res) {
+    let allType = []
+    const allPokemon = await getAllPokemon()
+    console.log(allPokemon)
+    allPokemon.forEach(element => {
+        let types = getOneTypes(element.Types)
+        if(!allType.includes(types)){
+            allType.push(types)
+        }
     });
+    res.send(allType)
+})
+
+app.get('/ekip/:ekip', async function(req, res) {
+    try{
+        await postEkip(req.params.ekip)
+        console.log("envoie ekip")
+        res.send('hello')
+    } catch(error){
+        console.error({error})
+        res.status(500).send("TEST")
+    }
+})
+
+app.get('/allEkip', async function (req, res) {
+    const ekip = await getAllEkip()
+    res.send(ekip)
+})
+
+app.get("/deleteEkip/:ekip", async function(req, res) {
+    const delEkip = await deleteEkip(req.params.ekip)
+    res.send(delEkip)
 })
 
 app.get('/error', function(req, res){
