@@ -1,14 +1,14 @@
-# Ce répo permet le fonctionnement du répo POKEMON
+# Ce repo permet le fonctionnement du répo POKEMON
 
-**Le répo POKEMON qui contient la partie react est disponible à l'adresse suivante : https://github.com/BaptisteMathon/POKEMON**
+**Le repo POKEMON qui contient la partie react est disponible à l'adresse suivante : https://github.com/BaptisteMathon/POKEMON**
 
-Ce répo va permettre d'intérargir avec la base de donnée MongoDB, qui contient toutes les informations que le répo POKEMON a besoin.
+Ce repo va permettre d'intérargir avec la base de données MongoDB, qui contient toutes les informations que le repo POKEMON a besoin.
 
-Dans la base de donnée MongoDB on va retrouver tous les pokémons avec leurs noms, leurs attaques, leurs PV, leurs vitesses...
+Dans la base de données MongoDB on va retrouver tous les pokémons avec leurs noms, leurs attaques, leurs PV, leurs vitesses...
 
 ![image](https://github.com/BaptisteMathon/POKEMON_DATABASE/assets/103061783/984f162b-e05e-405a-9c66-5e9de19529f8)
 
-## Afin de communiquer avec MongoDB et de récupérer les informations nécessaires au fonctionnement du projet , on peut utiliser plusieurs URL tel que : https://pokemon-database-ten.vercel.app/
+## Afin de communiquer avec MongoDB et de récupérer les informations nécessaires au fonctionnement du projet , on peut utiliser plusieurs URL telles que : https://pokemon-database-ten.vercel.app/
 
 Voici une liste des différentes URL disponibles: 
 
