@@ -1,5 +1,7 @@
 # Ce répo permet le fonctionnement du répo POKEMON
 
+**Le répo POKEMON qui contient la partie react est disponible à l'adresse suivante : https://github.com/BaptisteMathon/POKEMON**
+
 Ce répo va permettre d'intérargir avec la base de donnée MongoDB, qui contient toutes les informations que le répo POKEMON a besoin.
 
 Dans la base de donnée MongoDB on va retrouver tous les pokémons avec leurs noms, leurs attaques, leurs PV, leurs vitesses...
@@ -25,6 +27,3 @@ Voici une liste des différentes URL disponibles:
   -Si l'on souhaite récupérer un pokémon aléatoire selon son tier : https://pokemon-database-ten.vercel.app/random/tier/PU
   
   -Si l'on souhaire récupérer la lignée d'un pokémon aléatoire : https://pokemon-database-ten.vercel.app/random/lignee
-
-
-**Le répo POKEMON qui contient la partie react est disponible à l'adresse suivante : https://github.com/BaptisteMathon/POKEMON**
