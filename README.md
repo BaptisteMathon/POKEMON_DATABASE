@@ -26,4 +26,5 @@ Voici une liste des différentes URL disponibles:
   
   -Si l'on souhaire récupérer la lignée d'un pokémon aléatoire : https://pokemon-database-ten.vercel.app/random/lignee
 
-  
+
+**Le répo POKEMON qui contient la partie react est disponible à l'adresse suivante : https://github.com/BaptisteMathon/POKEMON**
