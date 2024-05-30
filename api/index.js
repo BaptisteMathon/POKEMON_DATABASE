@@ -88,33 +88,26 @@ app.get('/random/lignee', async function(req, res) {
     res.send(ArrayPOK)
 })
 
-// app.get('/random/tier/:tier', async function (req, res) {
+app.get('/random/tier/:tier', async function (req, res) {
 
-//     let arrayTier = []
-//     const allPokemon = await getAllPokemon()
-//     allPokemon.forEach
-//     let arrayTier = []
-//     const allPokemon = await getAllPokemon()
-//     allPokemon.forEach(element => {
-//         if (element.Tier === req.params.tier){
-//             arrayTier.push(element)
-//         }
-//     });
-//     const getTier = await axios.get('https://pokemon-database-ten.vercel.app/liste/tier')
-//     if(getTier.data.includes(req.params.tier)){
-//         fs.readFile(path)
-//             .then((data) => {
+    let arrayTier = []
+    const allPokemon = await getAllPokemon()
+    allPokemon.forEach(element => {
+        if (element.Tier === req.params.tier){
+            arrayTier.push(element)
+        }
+    });
 
-//     if(arrayTier.length != 0){
-//         const randomNumber = Math.floor(Math.random() * arrayTier.length)
+    if(arrayTier.length != 0){
+        const randomNumber = Math.floor(Math.random() * arrayTier.length)
     
-//         const randomTierPokemon = arrayTier[randomNumber]
+        const randomTierPokemon = arrayTier[randomNumber]
     
-//         res.send(randomTierPokemon)
-//     } else {
-//         res.redirect("/error?e=Le%20tier%20n'existe%20pas")
-//     }
-// })
+        res.send(randomTierPokemon)
+    } else {
+        res.redirect("/error?e=Le%20tier%20n'existe%20pas")
+    }
+})
 
 app.get('/random/stage/:evo', async function (req, res) {
     let arrrayPokemonSansEvolution = []
@@ -193,16 +186,12 @@ app.get('/liste/tier', async function(req, res) {
 })
 
 app.get('/liste/type', async function(req, res) {
-    let allType = []
-    const allPokemon = await getAllPokemon()
-    console.log(allPokemon)
-    allPokemon.forEach(element => {
-        let types = getOneTypes(element.Types)
-        if(!allType.includes(types)){
-            allType.push(types)
-        }
+    const allTypes = await getAllTypes()
+    let arrayTypes = []
+    allTypes.forEach(elt => {
+        arrayTypes.push(elt.name)
     });
-    res.send(allType)
+    res.send(arrayTypes)
 })
 
 app.get('/ekip/:ekip', async function(req, res) {
