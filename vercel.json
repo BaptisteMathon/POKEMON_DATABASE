@@ -1,13 +1,9 @@
 {
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
+    "version": 2,
+    "rewrites": [
         {
-          "key": "Set-Cookie",
-          "value": "__vercel_live_token=value; Path=/; SameSite=None; Secure; HttpOnly"
+            "source": "/(.*)",
+            "destination": "/api"
         }
-      ]
-    }
-  ]
+    ]
 }
