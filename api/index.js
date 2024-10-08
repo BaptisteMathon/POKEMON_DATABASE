@@ -17,9 +17,19 @@ const {postEkip} = require("../controller/ekip/post")
 
 const {deleteEkip} = require("../controller/ekip/delete")
 
-
-
 let path = "./data/pokemon-data.json"
+
+// Middleware pour définir un cookie sur toutes les routes
+app.use((req, res, next) => {
+    res.cookie('global_cookie', 'global_value', {
+        sameSite: 'None',
+        secure: true, // Obligatoire pour SameSite=None
+        httpOnly: true,
+        path: '/',
+        expires: new Date(Date.now() + 900000) // Durée de vie de 15 minutes
+    });
+    next(); // Continue avec les autres routes
+});
 
 app.use(cors())
 
