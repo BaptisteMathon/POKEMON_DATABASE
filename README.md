@@ -27,3 +27,9 @@ Voici une liste des différentes URL disponibles:
   -Si l'on souhaite récupérer un pokémon aléatoire selon son tier : https://pokemon-database-ten.vercel.app/random/tier/PU
   
   -Si l'on souhaire récupérer la lignée d'un pokémon aléatoire : https://pokemon-database-ten.vercel.app/random/lignee
+
+
+
+'''
+print("test")
+'''
